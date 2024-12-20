@@ -28,22 +28,31 @@ export default function SignIn () {
     const signInRequest = {
       email,
       password
-    }
-
+    };
+  
     try {
-      // signIn 함수 호출
-      const response = await signIn(signInRequest)
-
-      // 서버에서 반환한 토큰을 로컬 스토리지에 저장
-      localStorage.setItem('token', response.token)
-
-      // 로그인 성공 시 페이지 이동
-      navigate('/dashboard')
+      const response = await signIn(signInRequest);
+  
+      console.log('서버 응답:', response); // 서버 응답 디버깅
+  
+      // accessToken을 localStorage에 저장
+      if (response.accessToken) {
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken); // refreshToken도 저장
+        navigate('/'); // 홈 페이지로 이동
+      } else {
+        throw new Error('AccessToken이 응답에 없습니다.');
+      }
     } catch (err) {
-      // 로그인 실패 시 에러 처리
-      setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.')
+      console.error('로그인 오류:', err.message || err);
+      setError(
+        err.response?.data?.message ||
+        '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.'
+      );
     }
-  }
+  };
+  
+  
 
   return (
     <div className='min-h-screen flex flex-col'>
